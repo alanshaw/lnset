@@ -1,6 +1,6 @@
 {
   "name": "lnset",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Typed Set of IPLD links (CIDs).",
   "main": "index.js",
   "type": "module",
