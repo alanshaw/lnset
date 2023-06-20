@@ -1,0 +1,48 @@
+{
+  "name": "lnset",
+  "version": "0.0.0",
+  "description": "Typed Set of IPLD links (CIDs).",
+  "main": "index.js",
+  "type": "module",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "test": "entail",
+    "lint": "standard",
+    "coverage": "c8 npm test"
+  },
+  "keywords": [
+    "set",
+    "key",
+    "value",
+    "kv",
+    "CID",
+    "IPLD"
+  ],
+  "author": "Alan Shaw",
+  "license": "Apache-2.0 OR MIT",
+  "dependencies": {
+    "multiformats": "^12.0.1"
+  },
+  "devDependencies": {
+    "c8": "^8.0.0",
+    "entail": "^2.0.1",
+    "standard": "^17.1.0"
+  },
+  "standard": {
+    "ignore": [
+      "*.ts"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alanshaw/lnset.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alanshaw/lnset/issues"
+  },
+  "homepage": "https://github.com/alanshaw/lnset#readme"
+}
