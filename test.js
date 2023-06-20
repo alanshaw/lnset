@@ -95,7 +95,7 @@ export const test = {
       fromString('the entries')
     ].map(v => createRawLink(v))
     const set = new Set(values)
-    for (const [k, v] of set.entries()) {
+    for (const [k] of set.entries()) {
       const entry = values.find(e => e.toString() === k.toString())
       assert.ok(entry)
     }
