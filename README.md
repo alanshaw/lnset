@@ -22,10 +22,13 @@ import { CID } from 'multiformats/cid'
 const key0 = CID.create(1, raw.code, sha256.digest(new Uint8Array()))
 const key1 = CID.create(1, raw.code, sha256.digest(new Uint8Array()))
 
-const map = new Set()
-map.set(key0)
+const set = new Set()
+set.add(key0)
 
-console.log(map.has(key1)) // true
+console.log(set.has(key1)) // true
+
+// Create a CID for this CID set:
+console.log(set.link()) // CID(bahkygaysecoonrhfkgujdciwaluh2k42cxjka4rltqrxn6wdvrnnn4s54imj2)
 ```
 
 Okay, I know that's how sets work normally. How about this instead:

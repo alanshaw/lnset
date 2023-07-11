@@ -1,4 +1,8 @@
 import { base58btc } from 'multiformats/bases/base58'
+import { sha256 } from 'multiformats/hashes/sha2'
+import { create as createLink } from 'multiformats/link'
+
+export const codec = 0xC1D5
 
 /** @type {WeakMap<import('multiformats').MultihashDigest, string>} */
 const cache = new WeakMap()
@@ -20,6 +24,8 @@ const toBase58String = digest => {
 class LinkSet extends Set {
   /** @type {Map<string, Value>} */
   #values
+  /** @type {import('multiformats').Link?} */
+  #link
 
   /**
    * @param {Value[]} [values]
@@ -27,6 +33,7 @@ class LinkSet extends Set {
   constructor (values) {
     super()
     this.#values = new Map()
+    this.#link = null
     for (const v of values ?? []) {
       this.add(v)
     }
@@ -34,6 +41,7 @@ class LinkSet extends Set {
 
   clear () {
     this.#values.clear()
+    this.#link = null
   }
 
   /**
@@ -43,7 +51,9 @@ class LinkSet extends Set {
    */
   delete (value) {
     const mhstr = toBase58String(value.multihash)
-    return this.#values.delete(mhstr)
+    const deleted = this.#values.delete(mhstr)
+    if (deleted) this.#link = null
+    return deleted
   }
 
   /**
@@ -72,6 +82,7 @@ class LinkSet extends Set {
   add (value) {
     const mhstr = toBase58String(value.multihash)
     this.#values.set(mhstr, value)
+    this.#link = null
     return this
   }
 
@@ -109,6 +120,53 @@ class LinkSet extends Set {
    */
   values () {
     return this.#values.values()
+  }
+
+  /**
+   * Create a link for the set of links. This is the hash of the binary sorted
+   * links in the set.
+   *
+   * @returns {Promise<import('multiformats').Link>|import('multiformats').Link}
+   */
+  link () {
+    if (this.#link) return this.#link
+
+    const cids = []
+    let size = 0
+    for (const cid of this.values()) {
+      const bytes = cid.bytes
+      cids.push(bytes)
+      size += bytes.length
+    }
+
+    const sorted = cids.sort((a, b) => {
+      for (let i = 0; i < a.length; i++) {
+        if (a[i] < b[i]) return -1
+        if (a[i] > b[i]) return 1
+      }
+      if (a.length > b.length) return 1
+      if (a.length < b.length) return -1
+      return 0
+    })
+
+    const input = new Uint8Array(size)
+    let offset = 0
+    for (const bytes of sorted) {
+      input.set(bytes, offset)
+      offset += bytes.length
+    }
+
+    const digest = sha256.digest(input)
+
+    if (digest instanceof Promise) {
+      return digest.then(d => {
+        this.#link = createLink(codec, d)
+        return this.#link
+      })
+    }
+
+    this.#link = createLink(codec, digest)
+    return this.#link
   }
 }
 

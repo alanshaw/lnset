@@ -2,7 +2,7 @@ import { sha256 } from 'multiformats/hashes/sha2'
 import * as raw from 'multiformats/codecs/raw'
 import * as Link from 'multiformats/link'
 import { fromString } from 'multiformats/bytes'
-import { Set } from './index.js'
+import { Set, codec } from './index.js'
 
 /** @param {Uint8Array} bytes */
 const createRawLink = bytes => {
@@ -65,6 +65,7 @@ export const test = {
     set.forEach(function (v, v2, s) {
       count++
       assert.strictEqual(this, thisArg)
+      // @ts-expect-error
       assert.strictEqual(s, set)
       const entry = values.find(e => e.toString() === v.toString())
       assert.ok(entry)
@@ -128,5 +129,30 @@ export const test = {
       assert.ok(values.some(e => e.toString() === v.toString()))
     }
     assert.equal([...set.values()].length, values.length)
+  },
+
+  'should create link': async assert => {
+    /** @type {Array<import('multiformats').Link>} */
+    const values = [
+      fromString('linkaa'),
+      fromString('linkya'),
+      fromString('linksset')
+    ].map(v => createRawLink(v))
+    const s0 = new Set(values)
+
+    const s0l0 = await s0.link()
+    assert.equal(s0l0.code, codec)
+    s0.add(createRawLink(fromString('moarlink')))
+
+    const s0l1 = await s0.link()
+    assert.notEqual(s0l0.toString(), s0l1.toString())
+
+    s0.delete(createRawLink(fromString('moarlink')))
+    const s0l2 = await s0.link()
+    assert.equal(s0l0.toString(), s0l2.toString())
+
+    const s1 = new Set(values.reverse())
+    const s1l0 = await s1.link()
+    assert.equal(s1l0.toString(), s0l0.toString())
   }
 }
