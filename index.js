@@ -123,9 +123,6 @@ class LinkSet extends Set {
   }
 
   /**
-   * Create a link for the set of links. This is the hash of the binary sorted
-   * links in the set.
-   *
    * @returns {Promise<import('multiformats').Link>|import('multiformats').Link}
    */
   link () {
